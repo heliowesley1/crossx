@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrossX Training</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        html {
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .container-principal {
+            max-width: 1024px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #2a2a2a;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .tabela-botao {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem 0.375rem 0 0;
+            background-color: #3a3a3a;
+            color: #b0b0b0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            border-bottom: 2px solid transparent;
+        }
+        .tabela-botao.ativo {
+            background-color: #4a4a4a;
+            color: #ffffff;
+            border-color: #007bff;
+        }
+        .tabela-botao:hover:not(.ativo) {
+            background-color: #4a4a4a;
+            color: #e0e0e0;
+        }
+        .secao-conteudo {
+            background-color: #2a2a2a;
+            padding: 1.5rem;
+            border-radius: 0 0.5rem 0.5rem 0.5rem;
+            border-top: 1px solid #4a4a4a;
+        }
+        .item-lista {
+            background-color: #3a3a3a;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 0.375rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .item-lista p {
+            margin: 0.25rem 0;
+        }
+        .btn-acao {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .btn-editar {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-editar:hover {
+            background-color: #0056b3;
+        }
+        .btn-deletar {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-deletar:hover {
+            background-color: #c82333;
+        }
+        .btn-primario {
+            background-color: #28a745;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-primario:hover {
+            background-color: #218838;
+        }
+        .btn-secundario {
+            background-color: #6c757d;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-secundario:hover {
+            background-color: #5a6268;
+        }
+        input[type="text"], input[type="date"], input[type="number"], select {
+            background-color: #3a3a3a;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        .mensagem {
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+        }
+        .mensagem.sucesso {
+            background-color: #28a745;
+            color: white;
+        }
+        .mensagem.erro {
+            background-color: #dc3545;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="container-principal">
+        <h1 class="text-3xl font-bold text-center mb-6">Gerenciamento CrossX</h1>
+
+        <div class="flex border-b border-gray-700 mb-6">
+            <button id="tabelaAlunos" class="tabela-botao ativo">Alunos</button>
+            <button id="tabelaPagamentos" class="tabela-botao">Pagamentos</button>
+        </div>
+
+        <div id="secaoAlunos" class="secao-conteudo">
+            <h2 class="text-2xl font-semibold mb-4">Gerenciar Alunos</h2>
+
+            <button id="btnAlternarListaAlunos" class="btn-secundario mb-4 w-full">Mostrar Lista de Alunos</button>
+            <div id="listaAlunosContainer" class="hidden">
+                <div id="listaAlunos" class="mb-6">
+                    <p class="text-center text-gray-400">Clique em "Mostrar Lista de Alunos" para carregar.</p>
+                </div>
+                <div id="mensagemListaAlunos" class="mensagem hidden"></div>
+            </div>
+
+            <form id="formularioAdicionarAluno" class="p-6 rounded-lg shadow-lg mb-6">
+                <h3 class="text-xl font-semibold mb-4">Adicionar Novo Aluno</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="nomeAluno" class="block text-sm font-medium mb-1">Nome:</label>
+                        <input type="text" id="nomeAluno" name="nome" required class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="enderecoAluno" class="block text-sm font-medium mb-1">Endereço:</label>
+                        <input type="text" id="enderecoAluno" name="endereco" class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="cidadeAluno" class="block text-sm font-medium mb-1">Cidade:</label>
+                        <input type="text" id="cidadeAluno" name="cidade" class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="ufAluno" class="block text-sm font-medium mb-1">Estado (UF):</label>
+                        <input type="text" id="ufAluno" name="uf" maxlength="2" placeholder="Ex: CE" class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="telefoneAluno" class="block text-sm font-medium mb-1">Telefone:</label>
+                        <input type="text" id="telefoneAluno" name="telefone" placeholder="(XX) XXXXX-XXXX" class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="dataMatriculaAluno" class="block text-sm font-medium mb-1">Data Matrícula:</label>
+                        <input type="date" id="dataMatriculaAluno" name="data_Matricula" class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="dataDesligamentoAluno" class="block text-sm font-medium mb-1">Data Desligamento:</label>
+                        <input type="date" id="dataDesligamentoAluno" name="data_Desligamento" class="mt-1 block w-full">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primario mt-6 w-full">Cadastrar Aluno</button>
+            </form>
+            <div id="mensagemCadastroAluno" class="mensagem hidden"></div>
+
+            <div id="containerFormularioEdicaoAluno" class="p-6 rounded-lg shadow-lg mt-6 hidden">
+                <h3 class="text-xl font-semibold mb-4 text-blue-400">Editar Aluno</h3>
+                <form id="formularioEdicaoAluno">
+                    <input type="hidden" id="idAlunoEdicao" name="idAluno">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="nomeEdicao" class="block text-sm font-medium mb-1">Nome:</label>
+                            <input type="text" id="nomeEdicao" name="nome" required class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="enderecoEdicao" class="block text-sm font-medium mb-1">Endereço:</label>
+                            <input type="text" id="enderecoEdicao" name="endereco" class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="cidadeEdicao" class="block text-sm font-medium mb-1">Cidade:</label>
+                            <input type="text" id="cidadeEdicao" name="cidade" class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="ufEdicao" class="block text-sm font-medium mb-1">Estado (UF):</label>
+                            <input type="text" id="ufEdicao" name="uf" maxlength="2" class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="telefoneEdicao" class="block text-sm font-medium mb-1">Telefone:</label>
+                            <input type="text" id="telefoneEdicao" name="telefone" class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="dataMatriculaEdicao" class="block text-sm font-medium mb-1">Data Matrícula:</label>
+                            <input type="date" id="dataMatriculaEdicao" name="data_Matricula" class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="dataDesligamentoEdicao" class="block text-sm font-medium mb-1">Data Desligamento:</label>
+                            <input type="date" id="dataDesligamentoEdicao" name="data_Desligamento" class="mt-1 block w-full">
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 mt-6">
+                        <button type="submit" class="btn-primario">Salvar Edição</button>
+                        <button type="button" class="btn-secundario" onclick="cancelarEdicaoAluno()">Cancelar</button>
+                    </div>
+                </form>
+                <div id="mensagemEdicaoAluno" class="mensagem hidden"></div>
+            </div>
+        </div>
+
+        <div id="secaoPagamentos" class="secao-conteudo hidden">
+            <h2 class="text-2xl font-semibold mb-4">Gerenciar Pagamentos</h2>
+
+            <button id="btnAlternarListaPagamentos" class="btn-secundario mb-4 w-full">Mostrar Lista de Pagamentos</button>
+            <div id="listaPagamentosContainer" class="hidden">
+                <div id="listaPagamentos" class="mb-6">
+                    <p class="text-center text-gray-400">Clique em "Mostrar Lista de Pagamentos" para carregar.</p>
+                </div>
+                <div id="mensagemListaPagamentos" class="mensagem hidden"></div>
+            </div>
+
+            <form id="formularioAdicionarPagamento" class="p-6 rounded-lg shadow-lg mb-6">
+                <h3 class="text-xl font-semibold mb-4">Registrar Novo Pagamento</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="idAlunoPagamento" class="block text-sm font-medium mb-1">ID do Aluno:</label>
+                        <input type="number" id="idAlunoPagamento" name="idAluno" required class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="valorPagamento" class="block text-sm font-medium mb-1">Valor:</label>
+                        <input type="number" step="0.01" id="valorPagamento" name="valor" required class="mt-1 block w-full">
+                    </div>
+                    <div>
+                        <label for="tipoPagamento" class="block text-sm font-medium mb-1">Tipo:</label>
+                        <select id="tipoPagamento" name="tipo" required class="mt-1 block w-full">
+                            <option value="">Selecione</option>
+                            <option value="dinheiro">Dinheiro</option>
+                            <option value="cartão">Cartão</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="dataPagamento" class="block text-sm font-medium mb-1">Data do Pagamento:</label>
+                        <input type="date" id="dataPagamento" name="data" class="mt-1 block w-full">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primario mt-6 w-full">Registrar Pagamento</button>
+            </form>
+            <div id="mensagemRegistroPagamento" class="mensagem hidden"></div>
+
+            <div id="containerFormularioEdicaoPagamento" class="p-6 rounded-lg shadow-lg mt-6 hidden">
+                <h3 class="text-xl font-semibold mb-4 text-blue-400">Editar Pagamento</h3>
+                <form id="formularioEdicaoPagamento">
+                    <input type="hidden" id="idPagamentoEdicao" name="idPagamento">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="idAlunoPagamentoEdicao" class="block text-sm font-medium mb-1">ID do Aluno:</label>
+                            <input type="number" id="idAlunoPagamentoEdicao" name="idAluno" required readonly class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="valorPagamentoEdicao" class="block text-sm font-medium mb-1">Valor:</label>
+                            <input type="number" step="0.01" id="valorPagamentoEdicao" name="valor" required class="mt-1 block w-full">
+                        </div>
+                        <div>
+                            <label for="tipoPagamentoEdicao" class="block text-sm font-medium mb-1">Tipo:</label>
+                            <select id="tipoPagamentoEdicao" name="tipo" required class="mt-1 block w-full">
+                                <option value="dinheiro">Dinheiro</option>
+                                <option value="cartão">Cartão</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="dataPagamentoEdicao" class="block text-sm font-medium mb-1">Data do Pagamento:</label>
+                            <input type="date" id="dataPagamentoEdicao" name="data" class="mt-1 block w-full">
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 mt-6">
+                        <button type="submit" class="btn-primario">Salvar Edição</button>
+                        <button type="button" class="btn-secundario" onclick="cancelarEdicaoPagamento()">Cancelar</button>
+                    </div>
+                </form>
+                <div id="mensagemEdicaoPagamento" class="mensagem hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mostrarMensagem(idElemento, textoMensagem, tipoMensagem) {
+            const divMensagem = document.getElementById(idElemento);
+            divMensagem.textContent = textoMensagem;
+            divMensagem.classList.remove('hidden', 'sucesso', 'erro');
+
+            if (tipoMensagem) {
+                divMensagem.classList.add(tipoMensagem);
+            }
+
+            if (textoMensagem || tipoMensagem) {
+                divMensagem.classList.remove('hidden');
+            } else {
+                divMensagem.classList.add('hidden');
+            }
+
+            if (!divMensagem.classList.contains('hidden')) {
+                setTimeout(() => {
+                    divMensagem.classList.add('hidden');
+                    divMensagem.textContent = '';
+                }, 6000);
+            }
+        }
+
+        function alternarSecaoAtiva(secaoAtivaId) {
+            const secaoAlunos = document.getElementById('secaoAlunos');
+            const secaoPagamentos = document.getElementById('secaoPagamentos');
+            const tabelaAlunos = document.getElementById('tabelaAlunos');
+            const tabelaPagamentos = document.getElementById('tabelaPagamentos');
+
+            if (secaoAtivaId === 'secaoAlunos') {
+                secaoAlunos.classList.remove('hidden');
+                secaoPagamentos.classList.add('hidden');
+                tabelaAlunos.classList.add('ativo');
+                tabelaPagamentos.classList.remove('ativo');
+            } else {
+                secaoPagamentos.classList.remove('hidden');
+                secaoAlunos.classList.add('hidden');
+                tabelaPagamentos.classList.add('ativo');
+                tabelaAlunos.classList.remove('ativo');
+            }
+        }
+
+        function alternarVisibilidadeLista(idContainerLista, idBotao) {
+            const container = document.getElementById(idContainerLista);
+            const botao = document.getElementById(idBotao);
+
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                botao.textContent = 'Ocultar Lista';
+                if (idContainerLista === 'listaAlunosContainer') {
+                    carregarAlunos();
+                } else if (idContainerLista === 'listaPagamentosContainer') {
+                    carregarPagamentos();
+                }
+            } else {
+                container.classList.add('hidden');
+                botao.textContent = 'Mostrar Lista';
+            }
+        }
+
+        // alunosCRUD
+        async function carregarAlunos() {
+            const listaAlunos = document.getElementById('listaAlunos');
+            mostrarMensagem('mensagemListaAlunos', 'Carregando alunos...', 'sucesso');
+            listaAlunos.innerHTML = '<p class="text-center text-gray-400">Carregando...</p>';
+            try {
+                const resposta = await fetch('/alunos');
+                if (!resposta.ok) {
+                    const dadosErro = await resposta.json();
+                    throw new Error(dadosErro.erro || `Erro HTTP: ${resposta.status} - ${resposta.statusText}`);
+                }
+                const alunos = await resposta.json();
+
+                if (alunos.length === 0) {
+                    listaAlunos.innerHTML = '<p class="text-center text-gray-400">Nenhum aluno encontrado.</p>';
+                    mostrarMensagem('mensagemListaAlunos', 'Nenhum aluno encontrado.', 'sucesso');
+                    return;
+                }
+
+                listaAlunos.innerHTML = '';
+                alunos.forEach(aluno => {
+                    const divAluno = document.createElement('div');
+                    divAluno.className = 'item-lista';
+                    divAluno.innerHTML = `
+                        <div class="flex-1">
+                            <p><strong>ID:</strong> ${aluno.idAluno}</p>
+                            <p><strong>Nome:</strong> ${aluno.nome}</p>
+                            <p><strong>Endereço:</strong> ${aluno.endereco || 'N/A'}</p>
+                            <p><strong>Cidade/UF:</strong> ${aluno.cidade || 'N/A'}/${aluno.uf || 'N/A'}</p>
+                            <p><strong>Telefone:</strong> ${aluno.telefone || 'N/A'}</p>
+                            <p><strong>Matrícula:</strong> ${aluno.dataMatricula || 'N/A'}</p>
+                            <p><strong>Vencimento:</strong> ${aluno.dataVencimento || 'N/A'}</p>
+                            <p><strong>Desligamento:</strong> ${aluno.dataDesligamento || 'N/A'}</p>
+                            <p><strong>Status:</strong> ${aluno.ativo ? 'Ativo' : 'Inativo'}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="btn-acao btn-editar" onclick="editarAluno(${aluno.idAluno})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-acao btn-deletar" onclick="deletarAluno(${aluno.idAluno})">
+                                <i class="fas fa-trash-alt"></i> Deletar
+                            </button>
+                        </div>
+                    `;
+                    listaAlunos.appendChild(divAluno);
+                });
+                mostrarMensagem('mensagemListaAlunos', 'Alunos carregados com sucesso!', 'sucesso');
+
+            } catch (erro) {
+                listaAlunos.innerHTML = '<p class="text-center text-red-500">Erro ao carregar alunos.</p>';
+                mostrarMensagem('mensagemListaAlunos', `Erro ao carregar alunos: ${erro.message || erro}`, 'erro');
+                console.error("Erro ao carregar alunos:", erro);
+            }
+        }
+
+        // cadastrarAluno
+        document.getElementById('formularioAdicionarAluno').addEventListener('submit', async (evento) => {
+            evento.preventDefault();
+            const formulario = evento.target;
+            const dadosFormulario = new FormData(formulario);
+            const novoAluno = {};
+            dadosFormulario.forEach((valor, chave) => {
+                if (valor === '' && (chave === 'data_Matricula' || chave === 'data_Desligamento')) {
+                    novoAluno[chave] = null;
+                } else {
+                    novoAluno[chave] = valor;
+                }
+            });
+
+            mostrarMensagem('mensagemCadastroAluno', 'Cadastrando aluno...', 'sucesso');
+            try {
+                const resposta = await fetch('/alunos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(novoAluno)
+                });
+                const resultado = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarMensagem('mensagemCadastroAluno', resultado.erro || 'Erro desconhecido ao cadastrar aluno.', 'erro');
+                    console.error("Erro do backend:", resultado);
+                } else {
+                    mostrarMensagem('mensagemCadastroAluno', resultado.mensagem || 'Aluno cadastrado com sucesso!', 'sucesso');
+                    formulario.reset();
+                    if (!document.getElementById('listaAlunosContainer').classList.contains('hidden')) {
+                         carregarAlunos();
+                    }
+                }
+            } catch (erro) {
+                mostrarMensagem('mensagemCadastroAluno', `Erro de rede ao cadastrar aluno: ${erro.message || erro}`, 'erro');
+                console.error("Erro de rede:", erro);
+            }
+        });
+
+        // atualizarAluno
+        async function editarAluno(idAluno) {
+            console.log("ID do aluno ao clicar em Editar:", idAluno); 
+            const containerFormularioEdicao = document.getElementById('containerFormularioEdicaoAluno');
+            containerFormularioEdicao.classList.remove('hidden');
+            mostrarMensagem('mensagemEdicaoAluno', 'Carregando dados do aluno...', 'sucesso');
+
+            try {
+                const resposta = await fetch(`/alunos/${idAluno}`);
+                if (!resposta.ok) {
+                    const dadosErro = await resposta.json();
+                    throw new Error(dadosErro.erro || `Erro HTTP: ${resposta.status} - ${resposta.statusText}`);
+                }
+                const aluno = await resposta.json();
+
+                document.getElementById('idAlunoEdicao').value = aluno.idAluno;
+                document.getElementById('nomeEdicao').value = aluno.nome;
+                document.getElementById('enderecoEdicao').value = aluno.endereco || '';
+                document.getElementById('cidadeEdicao').value = aluno.cidade || '';
+                document.getElementById('ufEdicao').value = aluno.uf || '';
+                document.getElementById('telefoneEdicao').value = aluno.telefone || '';
+                document.getElementById('dataMatriculaEdicao').value = aluno.dataMatricula || '';
+                document.getElementById('dataDesligamentoEdicao').value = aluno.dataDesligamento || '';
+
+                containerFormularioEdicao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                mostrarMensagem('mensagemEdicaoAluno', 'Dados do aluno carregados!', 'sucesso');
+
+            } catch (erro) {
+                mostrarMensagem('mensagemEdicaoAluno', `Erro ao carregar dados do aluno para edição: ${erro.message || erro}`, 'erro');
+                console.error("Erro ao carregar dados do aluno para edição:", erro);
+                containerFormularioEdicao.classList.add('hidden');
+            }
+        }
+
+        // atualizarAluno => salvar
+        document.getElementById('formularioEdicaoAluno').addEventListener('submit', async (evento) => {
+            evento.preventDefault();
+            const formulario = evento.target;
+            const idAluno = document.getElementById('idAlunoEdicao').value;
+            console.log("ID do Aluno no momento do PUT:", idAluno);
+            const dadosFormulario = new FormData(formulario);
+            const alunoAtualizado = {};
+            dadosFormulario.forEach((valor, chave) => {
+                 if (valor === '' && (chave === 'data_Matricula' || chave === 'data_Desligamento')) {
+                    alunoAtualizado[chave] = null;
+                } else {
+                    alunoAtualizado[chave] = valor;
+                }
+            });
+            delete alunoAtualizado.idAluno;
+
+            mostrarMensagem('mensagemEdicaoAluno', 'Salvando edição...', 'sucesso'); 
+            try {
+                const resposta = await fetch(`/alunos/${idAluno}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(alunoAtualizado)
+                });
+                const resultado = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarMensagem('mensagemEdicaoAluno', resultado.erro || `Erro ao atualizar aluno ID ${idAluno}.`, 'erro');
+                    console.error("Erro do backend:", resultado);
+                } else {
+                    mostrarMensagem('mensagemEdicaoAluno', resultado.mensagem || `Aluno ID ${idAluno} atualizado com sucesso!`, 'sucesso');
+                    cancelarEdicaoAluno();
+                    if (!document.getElementById('listaAlunosContainer').classList.contains('hidden')) {
+                        carregarAlunos();
+                    }
+                }
+            } catch (erro) {
+                mostrarMensagem('mensagemEdicaoAluno', `Erro de rede ao atualizar aluno: ${erro.message || erro}`, 'erro');
+                console.error("Erro de rede:", erro);
+            }
+        });
+
+        // atualizarAluno => cancelar
+        function cancelarEdicaoAluno() {
+            const containerFormularioEdicao = document.getElementById('containerFormularioEdicaoAluno');
+            const formularioEdicaoAluno = document.getElementById('formularioEdicaoAluno');
+            containerFormularioEdicao.classList.add('hidden');
+            formularioEdicaoAluno.reset();
+            mostrarMensagem('mensagemEdicaoAluno', '', '');
+        }
+
+        // deletarAluno
+        async function deletarAluno(idAluno) {
+            if (!confirm(`Tem certeza que deseja deletar o aluno ID ${idAluno}?`)) {
+                return;
+            }
+
+            mostrarMensagem('mensagemListaAlunos', 'Deletando aluno...', 'sucesso');
+            try {
+                const resposta = await fetch(`/alunos/${idAluno}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const resultado = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarMensagem('mensagemListaAlunos', resultado.erro || `Erro ao deletar aluno ID ${idAluno}.`, 'erro');
+                    console.error("Erro do backend:", resultado);
+                } else {
+                    mostrarMensagem('mensagemListaAlunos', resultado.mensagem || `Aluno ID ${idAluno} deletado com sucesso!`, 'sucesso');
+                    carregarAlunos();
+                }
+            } catch (erro) {
+                mostrarMensagem('mensagemListaAlunos', `Erro de rede ao deletar aluno: ${erro.message || erro}`, 'erro');
+                console.error("Erro de rede:", erro);
+            }
+        }
+
+        // pagamentosCRUD
+
+        // mostrarTodosPagamentos
+        async function carregarPagamentos() {
+            const listaPagamentos = document.getElementById('listaPagamentos');
+            mostrarMensagem('mensagemListaPagamentos', 'Carregando pagamentos...', 'sucesso');
+            listaPagamentos.innerHTML = '<p class="text-center text-gray-400">Carregando...</p>';
+            try {
+                const resposta = await fetch('/pagamentos');
+                if (!resposta.ok) {
+                    const dadosErro = await resposta.json();
+                    throw new Error(dadosErro.erro || `Erro HTTP: ${resposta.status} - ${resposta.statusText}`);
+                }
+                const pagamentos = await resposta.json();
+
+                if (pagamentos.length === 0) {
+                    listaPagamentos.innerHTML = '<p class="text-center text-gray-400">Nenhum pagamento encontrado.</p>';
+                    mostrarMensagem('mensagemListaPagamentos', 'Nenhum pagamento encontrado.', 'sucesso');
+                    return;
+                }
+
+                listaPagamentos.innerHTML = '';
+                pagamentos.forEach(pagamento => {
+                    const divPagamento = document.createElement('div');
+                    divPagamento.className = 'item-lista';
+                    divPagamento.innerHTML = `
+                        <div class="flex-1">
+                            <p><strong>ID Pagamento:</strong> ${pagamento.idPagamento}</p>
+                            <p><strong>ID Aluno:</strong> ${pagamento.idAluno}</p>
+                            <p><strong>Data:</strong> ${pagamento.data}</p>
+                            <p><strong>Valor:</strong> ${pagamento.valor}</p>
+                            <p><strong>Tipo:</strong> ${pagamento.tipo}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="btn-acao btn-deletar" onclick="deletarPagamento(${pagamento.idPagamento})">
+                                <i class="fas fa-trash-alt"></i> Deletar
+                            </button>
+                        </div>
+                    `;
+                    listaPagamentos.appendChild(divPagamento);
+                });
+                mostrarMensagem('mensagemListaPagamentos', 'Pagamentos carregados com sucesso!', 'sucesso');
+
+            } catch (erro) {
+                listaPagamentos.innerHTML = '<p class="text-center text-red-500">Erro ao carregar pagamentos.</p>';
+                mostrarMensagem('mensagemListaPagamentos', `Erro ao carregar pagamentos: ${erro.message || erro}`, 'erro');
+                console.error("Erro ao carregar pagamentos:", erro);
+            }
+        }
+
+        // registrarPagamento
+        document.getElementById('formularioAdicionarPagamento').addEventListener('submit', async (evento) => {
+            evento.preventDefault();
+            const formulario = evento.target;
+            const dadosFormulario = new FormData(formulario);
+            const novoPagamento = {};
+            dadosFormulario.forEach((valor, chave) => {
+                novoPagamento[chave] = valor;
+            });
+
+            if (novoPagamento.data === '') {
+                novoPagamento.data = null;
+            }
+
+            mostrarMensagem('mensagemRegistroPagamento', 'Registrando pagamento...', 'sucesso'); 
+            try {
+                const resposta = await fetch('/pagamentos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(novoPagamento)
+                });
+                const resultado = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarMensagem('mensagemRegistroPagamento', resultado.erro || 'Erro desconhecido ao registrar pagamento.', 'erro');
+                    console.error("Erro do backend:", resultado);
+                } else {
+                    mostrarMensagem('mensagemRegistroPagamento', resultado.mensagem || 'Pagamento registrado com sucesso!', 'sucesso');
+                    formulario.reset();
+                    if (!document.getElementById('listaPagamentosContainer').classList.contains('hidden')) {
+                        carregarPagamentos();
+                    }
+                }
+            } catch (erro) {
+                mostrarMensagem('mensagemRegistroPagamento', `Erro de rede ao registrar pagamento: ${erro.message || erro}`, 'erro');
+                console.error("Erro de rede:", erro);
+            }
+        });
+
+        // deletarPagamento
+        async function deletarPagamento(idPagamento) {
+            if (!confirm(`Tem certeza que deseja deletar o pagamento ID ${idPagamento}?`)) {
+                return;
+            }
+
+            mostrarMensagem('mensagemListaPagamentos', 'Deletando pagamento...', 'sucesso');
+            try {
+                const resposta = await fetch(`/pagamentos/${idPagamento}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const resultado = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarMensagem('mensagemListaPagamentos', resultado.erro || `Erro ao deletar pagamento ID ${idPagamento}.`, 'erro');
+                    console.error("Erro do backend:", resultado);
+                } else {
+                    mostrarMensagem('mensagemListaAlunos', resultado.mensagem || `Aluno ID ${idPagamento} deletado com sucesso!`, 'sucesso');
+                    carregarAlunos();
+                }
+            } catch (erro) {
+                mostrarMensagem('mensagemListaAlunos', `Erro de rede ao deletar aluno: ${erro.message || erro}`, 'erro');
+                console.error("Erro de rede:", erro);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('tabelaAlunos').addEventListener('click', () => alternarSecaoAtiva('secaoAlunos'));
+            document.getElementById('tabelaPagamentos').addEventListener('click', () => alternarSecaoAtiva('secaoPagamentos'));
+            document.getElementById('btnAlternarListaAlunos').addEventListener('click', () => alternarVisibilidadeLista('listaAlunosContainer', 'btnAlternarListaAlunos'));
+            document.getElementById('btnAlternarListaPagamentos').addEventListener('click', () => alternarVisibilidadeLista('listaPagamentosContainer', 'btnAlternarListaPagamentos'));
+        });
+    </script>
+</body>
+</html>
