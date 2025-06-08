@@ -12,6 +12,10 @@ def rotas(app):
         data = request.get_json()
         if not data or not data.get('nome'):
             return jsonify({"erro": "Nome é obrigatório."}), 400
+        
+        data_matricula_str = data.get('data_Matricula')
+        data_matricula = datetime.strptime(data_matricula_str, '%Y-%m-%d').date() \
+                         if data_matricula_str else datetime.now().date()
 
         novoAluno = Aluno(
             Nome=data['nome'],
@@ -19,7 +23,7 @@ def rotas(app):
             Cidade=data.get('cidade'), 
             Estado=data.get('uf'),
             Telefone=data.get('telefone'),
-            Data_Matricula=datetime.strptime(data['data_Matricula'], '%Y-%m-%d').date() if data.get('data_Matricula') else None,
+            Data_Matricula=data_matricula,
             Data_Desligamento=datetime.strptime(data['data_Desligamento'], '%Y-%m-%d').date() if data.get('data_Desligamento') else None
         )
         if novoAluno.Data_Matricula:

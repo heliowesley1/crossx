@@ -87,10 +87,14 @@
         .btn-primario {
             background-color: #28a745;
             color: white;
-            padding: 0.75rem 1.25rem;
+            padding: 0.5rem 1.25rem; /* Ajustado para 0.5rem para combinar com a altura do input */
             border-radius: 0.375rem;
             font-weight: 600;
             transition: background-color 0.2s ease-in-out;
+            height: 2.5rem; /* Altura fixa para combinar com os inputs */
+            display: flex;
+            align-items: center; /* Centraliza o texto verticalmente */
+            justify-content: center; /* Centraliza o texto horizontalmente */
         }
         .btn-primario:hover {
             background-color: #218838;
@@ -98,10 +102,14 @@
         .btn-secundario {
             background-color: #6c757d;
             color: white;
-            padding: 0.75rem 1.25rem;
+            padding: 0.5rem 1.25rem; /* Ajustado para 0.5rem para combinar com a altura do input */
             border-radius: 0.375rem;
             font-weight: 600;
             transition: background-color 0.2s ease-in-out;
+            height: 2.5rem; /* Altura fixa para combinar com os inputs */
+            display: flex;
+            align-items: center; /* Centraliza o texto verticalmente */
+            justify-content: center; /* Centraliza o texto horizontalmente */
         }
         .btn-secundario:hover {
             background-color: #5a6268;
@@ -114,6 +122,7 @@
             border-radius: 0.375rem;
             width: 100%;
             box-sizing: border-box;
+            height: 2.5rem; /* Altura padrão para inputs */
         }
         input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus {
             outline: none;
@@ -151,6 +160,21 @@
         <div id="secaoAlunos" class="secao-conteudo">
             <h2 class="text-2xl font-semibold mb-4">Gerenciar Alunos</h2>
 
+            <div class="p-6 rounded-lg shadow-lg mb-6">
+                <div class="flex items-end gap-4">
+                    <div class="flex-grow">
+                        <label for="buscarIdAluno" class="block text-sm font-medium mb-1">ID do Aluno:</label>
+                        <input type="number" id="buscarIdAluno" name="buscarIdAluno" class="mt-1 block w-full" placeholder="Digite o ID do aluno">
+                    </div>
+                    <button type="button" class="btn-primario" onclick="buscarAluno()">Buscar Aluno</button>
+                    <button type="button" class="btn-secundario" onclick="cancelarBuscaAluno()">Cancelar</button>
+                </div>
+                <div id="resultadoBuscaAluno" class="mt-4 p-4 rounded-lg bg-gray-700 hidden">
+                    <p class="text-center text-gray-300">Resultados da busca aparecerão aqui.</p>
+                </div>
+                <div id="mensagemBuscaAluno" class="mensagem hidden"></div>
+            </div>
+
             <button id="btnAlternarListaAlunos" class="btn-secundario mb-4 w-full">Mostrar Lista de Alunos</button>
             <div id="listaAlunosContainer" class="hidden">
                 <div id="listaAlunos" class="mb-6">
@@ -164,15 +188,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="nomeAluno" class="block text-sm font-medium mb-1">Nome:</label>
-                        <input type="text" id="nomeAluno" name="nome" required class="mt-1 block w-full">
+                        <input type="text" id="nomeAluno" name="nome" required class="mt-1 block w-full" placeholder="Nome do Aluno">
                     </div>
                     <div>
                         <label for="enderecoAluno" class="block text-sm font-medium mb-1">Endereço:</label>
-                        <input type="text" id="enderecoAluno" name="endereco" class="mt-1 block w-full">
+                        <input type="text" id="enderecoAluno" name="endereco" class="mt-1 block w-full"  placeholder="Ex: Av. XXX">
                     </div>
                     <div>
                         <label for="cidadeAluno" class="block text-sm font-medium mb-1">Cidade:</label>
-                        <input type="text" id="cidadeAluno" name="cidade" class="mt-1 block w-full">
+                        <input type="text" id="cidadeAluno" name="cidade" class="mt-1 block w-full" placeholder="Ex: Fortaleza">
                     </div>
                     <div>
                         <label for="ufAluno" class="block text-sm font-medium mb-1">Estado (UF):</label>
@@ -185,10 +209,6 @@
                     <div>
                         <label for="dataMatriculaAluno" class="block text-sm font-medium mb-1">Data Matrícula:</label>
                         <input type="date" id="dataMatriculaAluno" name="data_Matricula" class="mt-1 block w-full">
-                    </div>
-                    <div>
-                        <label for="dataDesligamentoAluno" class="block text-sm font-medium mb-1">Data Desligamento:</label>
-                        <input type="date" id="dataDesligamentoAluno" name="data_Desligamento" class="mt-1 block w-full">
                     </div>
                 </div>
                 <button type="submit" class="btn-primario mt-6 w-full">Cadastrar Aluno</button>
@@ -254,11 +274,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="idAlunoPagamento" class="block text-sm font-medium mb-1">ID do Aluno:</label>
-                        <input type="number" id="idAlunoPagamento" name="idAluno" required class="mt-1 block w-full">
+                        <input type="number" id="idAlunoPagamento" name="idAluno" required class="mt-1 block w-full" placeholder="ID Aluno">
                     </div>
                     <div>
                         <label for="valorPagamento" class="block text-sm font-medium mb-1">Valor:</label>
-                        <input type="number" step="0.01" id="valorPagamento" name="valor" required class="mt-1 block w-full">
+                        <input type="number" step="0.01" id="valorPagamento" name="valor" required class="mt-1 block w-full" placeholder="R$ 0,00">
                     </div>
                     <div>
                         <label for="tipoPagamento" class="block text-sm font-medium mb-1">Tipo:</label>
@@ -401,7 +421,7 @@
                             <p><strong>ID:</strong> ${aluno.idAluno}</p>
                             <p><strong>Nome:</strong> ${aluno.nome}</p>
                             <p><strong>Endereço:</strong> ${aluno.endereco || 'N/A'}</p>
-                            <p><strong>Cidade/UF:</strong> ${aluno.cidade || 'N/A'}/${aluno.uf || 'N/A'}</p>
+                            <p><strong>Cidade/UF:</strong> ${aluno.cidade ? aluno.cidade + '/' : ''}${aluno.uf || 'N/A'}</p>
                             <p><strong>Telefone:</strong> ${aluno.telefone || 'N/A'}</p>
                             <p><strong>Matrícula:</strong> ${aluno.dataMatricula || 'N/A'}</p>
                             <p><strong>Vencimento:</strong> ${aluno.dataVencimento || 'N/A'}</p>
@@ -419,7 +439,7 @@
                     `;
                     listaAlunos.appendChild(divAluno);
                 });
-                mostrarMensagem('mensagemListaAlunos', 'Alunos carregados com sucesso!', 'sucesso');
+                mostrarMensagem('mensagemListaAlunos', 'Alunos atualizados!', 'sucesso');
 
             } catch (erro) {
                 listaAlunos.innerHTML = '<p class="text-center text-red-500">Erro ao carregar alunos.</p>';
@@ -467,7 +487,7 @@
             }
         });
 
-        // atualizarAluno
+        // editarAluno
         async function editarAluno(idAluno) {
             console.log("ID do aluno ao clicar em Editar:", idAluno); 
             const containerFormularioEdicao = document.getElementById('containerFormularioEdicaoAluno');
@@ -501,7 +521,7 @@
             }
         }
 
-        // atualizarAluno => salvar
+        // editarAluno => salvar
         document.getElementById('formularioEdicaoAluno').addEventListener('submit', async (evento) => {
             evento.preventDefault();
             const formulario = evento.target;
@@ -543,7 +563,7 @@
             }
         });
 
-        // atualizarAluno => cancelar
+        // editarAluno => cancelar
         function cancelarEdicaoAluno() {
             const containerFormularioEdicao = document.getElementById('containerFormularioEdicaoAluno');
             const formularioEdicaoAluno = document.getElementById('formularioEdicaoAluno');
@@ -579,8 +599,67 @@
             }
         }
 
-        // pagamentosCRUD
+        // buscarAluno
+        async function buscarAluno() {
+            const idAluno = document.getElementById('buscarIdAluno').value;
+            const resultadoBuscaDiv = document.getElementById('resultadoBuscaAluno');
+            resultadoBuscaDiv.classList.add('hidden');
+            mostrarMensagem('mensagemBuscaAluno', 'Buscando aluno...', 'sucesso');
+            resultadoBuscaDiv.innerHTML = '<p class="text-center text-gray-300">Carregando...</p>';
 
+            if (!idAluno) {
+                mostrarMensagem('mensagemBuscaAluno', 'Por favor, digite um ID de aluno para buscar.', 'erro');
+                return;
+            }
+
+            try {
+                const resposta = await fetch(`/alunos/${idAluno}`);
+                if (!resposta.ok) {
+                    const dadosErro = await resposta.json();
+                    throw new Error(dadosErro.erro || `Erro HTTP: ${resposta.status} - ${resposta.statusText}`);
+                }
+                const aluno = await resposta.json();
+
+                resultadoBuscaDiv.innerHTML = `
+                    <div class="flex-1">
+                        <p><strong>ID:</strong> ${aluno.idAluno}</p>
+                        <p><strong>Nome:</strong> ${aluno.nome}</p>
+                        <p><strong>Endereço:</strong> ${aluno.endereco || 'N/A'}</p>
+                        <p><strong>Cidade/UF:</strong> ${aluno.cidade ? aluno.cidade + '/' : ''}${aluno.uf || 'N/A'}</p>
+                        <p><strong>Telefone:</strong> ${aluno.telefone || 'N/A'}</p>
+                        <p><strong>Matrícula:</strong> ${aluno.dataMatricula || 'N/A'}</p>
+                        <p><strong>Vencimento:</strong> ${aluno.dataVencimento || 'N/A'}</p>
+                        <p><strong>Desligamento:</strong> ${aluno.dataDesligamento || 'N/A'}</p>
+                        <p><strong>Status:</strong> ${aluno.ativo ? 'Ativo' : 'Inativo'}</p>
+                    </div>
+                    <div class="flex justify-end mt-4">
+                        <button class="btn-acao btn-editar" onclick="editarAluno(${aluno.idAluno})">
+                            <i class="fas fa-edit"></i> Editar Este Aluno
+                        </button>
+                    </div>
+                `;
+                resultadoBuscaDiv.classList.remove('hidden');
+                mostrarMensagem('mensagemBuscaAluno', 'Aluno encontrado!', 'sucesso');
+
+            } catch (erro) {
+                resultadoBuscaDiv.innerHTML = '<p class="text-center text-red-500">Aluno não encontrado ou erro na busca.</p>';
+                resultadoBuscaDiv.classList.remove('hidden');
+                mostrarMensagem('mensagemBuscaAluno', `Erro ao buscar aluno: ${erro.message || erro}`, 'erro');
+                console.error("Erro ao buscar aluno:", erro);
+            } finally {
+                resultadoBuscaDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // buscarAluno => cancelar
+        function cancelarBuscaAluno() {
+            document.getElementById('buscarIdAluno').value = '';
+            document.getElementById('resultadoBuscaAluno').classList.add('hidden');
+            document.getElementById('resultadoBuscaAluno').innerHTML = '<p class="text-center text-gray-300">Resultados da busca aparecerão aqui.</p>';
+            mostrarMensagem('mensagemBuscaAluno', '', ''); 
+        }
+
+        // pagamentosCRUD
         // mostrarTodosPagamentos
         async function carregarPagamentos() {
             const listaPagamentos = document.getElementById('listaPagamentos');
@@ -599,7 +678,6 @@
                     mostrarMensagem('mensagemListaPagamentos', 'Nenhum pagamento encontrado.', 'sucesso');
                     return;
                 }
-
                 listaPagamentos.innerHTML = '';
                 pagamentos.forEach(pagamento => {
                     const divPagamento = document.createElement('div');
@@ -686,11 +764,11 @@
                     mostrarMensagem('mensagemListaPagamentos', resultado.erro || `Erro ao deletar pagamento ID ${idPagamento}.`, 'erro');
                     console.error("Erro do backend:", resultado);
                 } else {
-                    mostrarMensagem('mensagemListaAlunos', resultado.mensagem || `Aluno ID ${idPagamento} deletado com sucesso!`, 'sucesso');
-                    carregarAlunos();
+                    mostrarMensagem('mensagemListaPagamentos', resultado.mensagem || `Pagamento ID ${idPagamento} deletado com sucesso!`, 'sucesso');
+                    carregarPagamentos(); // Recarrega a lista de pagamentos
                 }
             } catch (erro) {
-                mostrarMensagem('mensagemListaAlunos', `Erro de rede ao deletar aluno: ${erro.message || erro}`, 'erro');
+                mostrarMensagem('mensagemListaPagamentos', `Erro de rede ao deletar pagamento: ${erro.message || erro}`, 'erro');
                 console.error("Erro de rede:", erro);
             }
         }
